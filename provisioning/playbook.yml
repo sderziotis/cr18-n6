@@ -1,1 +1,309 @@
+# ─────────────────────────────────────────────
+#  Module 6 / N6a - Traffic Analysis CTF1
+#  Topology: cr18-N6-v1  (pentester + targetvm)
+#
+#  Required file next to this playbook:
+#    files/orion-internal.pcapng
+# ─────────────────────────────────────────────
 
+# ─────────────────────────────────────────────
+#  MACHINE 1 - pentester  (trainee analysis workstation)
+# ─────────────────────────────────────────────
+- name: init machine pentester
+  hosts:
+    - pentester
+  become: true
+
+  roles:
+    - role: sandbox-logging
+      slf_destination_port: '{% if hostvars["man"] is defined -%} 514 {%- else -%} 515 {%- endif %}'
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'btcmp18@admin'
+      user_access_sudo: true
+
+  tasks:
+
+  # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+    # ─── Wireshark must be preseeded BEFORE the apt install, or the
+    #     package pops an interactive debconf dialog and provisioning
+    #     hangs. This also creates the "wireshark" group used below.
+    - name: Preseed wireshark-common (non-root dumpcap, no dialog)
+      ansible.builtin.debconf:
+        name: wireshark-common
+        question: wireshark-common/install-setuid
+        value: 'true'
+        vtype: boolean
+
+    # apt packages
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - git
+          - wget
+          - curl
+          - jq
+          - unzip
+          - zip
+          - p7zip-full
+          - file
+          - xxd
+          - binwalk
+          - foremost
+          - wireshark
+          - tshark
+          - xdg-utils
+          - firefox
+        state: present
+        update_cache: 'yes'
+
+    - name: Add trainee to the wireshark group
+      ansible.builtin.user:
+        name: user
+        groups: wireshark
+        append: true
+
+    - name: Create Polkit rule to disable colord password prompts
+      ansible.builtin.copy:
+        content: |
+          polkit.addRule(function(action, subject) {
+              if ((action.id == "org.freedesktop.color-manager.create-device" ||
+                   action.id == "org.freedesktop.color-manager.create-profile" ||
+                   action.id == "org.freedesktop.color-manager.delete-device" ||
+                   action.id == "org.freedesktop.color-manager.delete-profile" ||
+                   action.id == "org.freedesktop.color-manager.modify-device" ||
+                   action.id == "org.freedesktop.color-manager.modify-profile") &&
+                  subject.isInGroup("user")) {
+                  return polkit.Result.YES;
+              }
+          });
+        dest: "/etc/polkit-1/rules.d/45-allow-colord.rules"
+        mode: '0644'
+
+    # ─── Case files ──────────────────────────────────────────────
+    # The capture is owned by root and world-readable but NOT writable:
+    # a trainee who mangles it cannot lock themselves out of Level 4.
+    - name: Create case directory
+      ansible.builtin.file:
+        path: /home/user/case
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Deploy the Orion Retail capture
+      ansible.builtin.copy:
+        src: files/orion-internal.pcapng
+        dest: /home/user/case/orion-internal.pcapng
+        owner: root
+        group: root
+        mode: '0444'
+
+    - name: Verify the capture deployed intact
+      ansible.builtin.stat:
+        path: /home/user/case/orion-internal.pcapng
+        checksum_algorithm: sha256
+      register: pcap_stat
+      failed_when: >
+        pcap_stat.stat.checksum !=
+        '265718bc45318afe3ec7d596cf9bfe971abdb1a1f48beb770b022d69387d63ea'
+
+    - name: Deploy the case brief
+      ansible.builtin.copy:
+        dest: /home/user/case/README.txt
+        owner: user
+        group: user
+        mode: '0644'
+        content: |
+          ORION RETAIL LTD - INCIDENT REVIEW
+          ==================================
+
+          The internal web admin panel was accessed without authorization.
+          A tcpdump capture was running on the internal interface of the
+          Ubuntu server srv-web01 (172.20.30.10) at the time.
+
+          Evidence:  ~/case/orion-internal.pcapng   (read-only)
+          Tools:     Wireshark (GUI), tshark, unzip, binwalk, foremost
+
+          The company LAN in the capture is 172.20.30.0/24. That network no
+          longer exists - this is an offline review. Do not attempt to reach
+          any address you see inside the capture.
+
+          Answer the questions in the training portal. All answers are
+          case-sensitive.
+
+    - name: Create a desktop shortcut to the case folder
+      ansible.builtin.copy:
+        dest: /home/user/Desktop/Case-Files.desktop
+        owner: user
+        group: user
+        mode: '0755'
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Link
+          Name=Case Files
+          Icon=folder
+          URL=file:///home/user/case
+
+    - name: Open the capture folder in Wireshark's file dialog by default
+      ansible.builtin.blockinfile:
+        path: /home/user/.bashrc
+        marker: "# {mark} KYPO N6A CASE SHORTCUT"
+        block: |
+          alias case='cd /home/user/case'
+          export CASE=/home/user/case
+        create: false
+
+    # 2. Apply high-DPI scaling (written directly to xfconf config file,
+    #    picked up automatically next time the XFCE session starts —
+    #    no live D-Bus session required during provisioning).
+    #    Harmless no-op if the image ships a non-XFCE session.
+    - name: Ensure xfconf config directory exists
+      ansible.builtin.file:
+        path: /home/user/.config/xfce4/xfconf/xfce-perchannel-xml
+        state: directory
+        owner: user
+        group: user
+        mode: '0755'
+        recurse: true
+
+    - name: Set XFCE DPI to 170
+      ansible.builtin.copy:
+        dest: /home/user/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+        owner: user
+        group: user
+        mode: '0644'
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <channel name="xsettings" version="1.0">
+            <property name="Xft" type="empty">
+              <property name="DPI" type="int" value="170"/>
+            </property>
+          </channel>
+
+    # ─── Services ────────────────────────────────────────────────
+    - name: Enable OpenSSH server
+      ansible.builtin.systemd:
+        name: ssh
+        enabled: true
+        state: started
+
+
+# ─────────────────────────────────────────────
+#  MACHINE 2 - targetvm  (router for network-3; target host for later N6 nodes)
+# ─────────────────────────────────────────────
+- name: init machine targetvm
+  hosts:
+    - targetvm
+  become: true
+
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'btcmp18@admin'
+      user_access_sudo: true
+
+  tasks:
+    # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - curl
+          - wget
+          - unzip
+          - zip
+          - file
+        state: present
+        update_cache: 'yes'
+
+    # N6a is offline forensics - targetvm hosts no services for this node.
+    # Add N6b service tasks below this line.
+
+    # ─── Services ────────────────────────────────────────────────
+    - name: Enable OpenSSH server
+      ansible.builtin.systemd:
+        name: ssh
+        enabled: true
+        state: started
+
+    - name: Enable cron
+      ansible.builtin.systemd:
+        name: cron
+        enabled: true
+        state: started
+
+
+- name: Disable unattended apt upgrades
+  hosts: pentester,targetvm,man
+  become: true
+  tasks:
+    - name: Disable unattended upgrades in apt periodic config
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          APT::Periodic::Update-Package-Lists "0";
+          APT::Periodic::Unattended-Upgrade "0";
+
+    - name: Disable apt daily timers
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        masked: true
+      loop:
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
