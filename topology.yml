@@ -1,1 +1,34 @@
-
+name: cr18-N6-v1
+hosts:
+  - name: pentester
+    flavor: c2_r4_d20
+    base_box:
+      image: ubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: false
+routers:
+  - name: targetvm
+    flavor: c3_r3_d15
+    base_box:
+      image: xubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: false
+networks:
+  - name: network-3
+    cidr: 192.168.10.0/24
+    accessible_by_user: true
+    hidden: false
+wan:
+  name: network-1
+  cidr: 10.10.10.0/24
+net_mappings:
+  - host: pentester
+    network: network-3
+    ip: 192.168.10.10
+router_mappings:
+  - router: targetvm
+    network: network-3
+    ip: 192.168.10.1
+groups: []
