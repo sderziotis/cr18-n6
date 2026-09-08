@@ -58,27 +58,17 @@
         value: 'true'
         vtype: boolean
 
-    # apt packages
+    # Only what N6a needs: Wireshark GUI + tshark for analysis, unzip for the
+    # recovered archive, file/xxd for confirming what was exported.
+    # tshark is NOT pulled in by the wireshark package - list it explicitly.
     - name: Install base packages
       ansible.builtin.apt:
         name:
-          - python3
-          - python3-pip
-          - git
-          - wget
-          - curl
-          - jq
-          - unzip
-          - zip
-          - p7zip-full
-          - file
-          - xxd
-          - binwalk
-          - foremost
           - wireshark
           - tshark
-          - xdg-utils
-          - firefox
+          - unzip
+          - file
+          - xxd
         state: present
         update_cache: 'yes'
 
@@ -157,21 +147,7 @@
           Answer the questions in the training portal. All answers are
           case-sensitive.
 
-    - name: Create a desktop shortcut to the case folder
-      ansible.builtin.copy:
-        dest: /home/user/Desktop/Case-Files.desktop
-        owner: user
-        group: user
-        mode: '0755'
-        content: |
-          [Desktop Entry]
-          Version=1.0
-          Type=Link
-          Name=Case Files
-          Icon=folder
-          URL=file:///home/user/case
-
-    - name: Open the capture folder in Wireshark's file dialog by default
+    - name: Add a case-folder shortcut to the trainee shell
       ansible.builtin.blockinfile:
         path: /home/user/.bashrc
         marker: "# {mark} KYPO N6A CASE SHORTCUT"
@@ -255,20 +231,9 @@
       changed_when: false
       failed_when: false
 
-    - name: Install base packages
-      ansible.builtin.apt:
-        name:
-          - python3
-          - curl
-          - wget
-          - unzip
-          - zip
-          - file
-        state: present
-        update_cache: 'yes'
-
-    # N6a is offline forensics - targetvm hosts no services for this node.
-    # Add N6b service tasks below this line.
+    # N6a is offline forensics - targetvm routes network-3 and hosts no
+    # services, so it needs no packages beyond the base image.
+    # Add N6b service tasks (and their apt install) below this line.
 
     # ─── Services ────────────────────────────────────────────────
     - name: Enable OpenSSH server
