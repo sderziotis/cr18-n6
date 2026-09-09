@@ -1,9 +1,12 @@
 # ─────────────────────────────────────────────
-#  Module 6 / N6a - Traffic Analysis CTF1
+#  Module 6 - Traffic Analysis (combined)
+#  Covers N6a (Traffic Analysis CTF1) and N6b (Traffic Analysis CTF2)
 #  Topology: cr18-N6-v1  (pentester + targetvm)
 #
-#  Required file next to this playbook:
-#    files/orion-internal.pcapng
+#  Required files next to this playbook:
+#    files/orion-internal.pcapng   (N6a capture)
+#    files/orion-ids.pcapng        (N6b capture)
+#    files/fast.log                (N6b IDS alert log)
 # ─────────────────────────────────────────────
 
 - name: init machine pentester
@@ -73,8 +76,8 @@
         append: true
 
     # ─── case files ──────────────────────────────────────────────
-    # Root-owned and read-only: a trainee who overwrites the capture
-    # cannot lock themselves out of the final level.
+    # Root-owned and read-only: a trainee who overwrites an evidence
+    # file cannot lock themselves out of a level.
     - name: Create case directory
       ansible.builtin.file:
         path: /home/user/case
@@ -83,7 +86,8 @@
         group: root
         mode: '0755'
 
-    - name: Deploy the Orion Retail capture
+    # ---- N6a evidence ----
+    - name: Deploy the Orion Retail capture (N6a)
       ansible.builtin.copy:
         src: files/orion-internal.pcapng
         dest: /home/user/case/orion-internal.pcapng
@@ -91,14 +95,49 @@
         group: root
         mode: '0444'
 
-    - name: Verify the capture deployed intact
+    - name: Verify the N6a capture deployed intact
       ansible.builtin.stat:
         path: /home/user/case/orion-internal.pcapng
         checksum_algorithm: sha256
-      register: pcap_stat
+      register: pcap_n6a_stat
       failed_when: >
-        pcap_stat.stat.checksum !=
+        pcap_n6a_stat.stat.checksum !=
         'a750921b6b95aa35f2a97d7646bb8d1ff29eaa4d186429ea9eca40810dba78ab'
+
+    # ---- N6b evidence ----
+    - name: Deploy the IDS-evasion capture (N6b)
+      ansible.builtin.copy:
+        src: files/orion-ids.pcapng
+        dest: /home/user/case/orion-ids.pcapng
+        owner: root
+        group: root
+        mode: '0444'
+
+    - name: Verify the N6b capture deployed intact
+      ansible.builtin.stat:
+        path: /home/user/case/orion-ids.pcapng
+        checksum_algorithm: sha256
+      register: pcap_n6b_stat
+      failed_when: >
+        pcap_n6b_stat.stat.checksum !=
+        '1aaf3da37742bd929a702fa6b2b6440dd48bd4ed7fff19a51bf23925dfc88a35'
+
+    - name: Deploy the IDS alert log (N6b)
+      ansible.builtin.copy:
+        src: files/fast.log
+        dest: /home/user/case/fast.log
+        owner: root
+        group: root
+        mode: '0444'
+
+    - name: Verify the N6b alert log deployed intact
+      ansible.builtin.stat:
+        path: /home/user/case/fast.log
+        checksum_algorithm: sha256
+      register: log_n6b_stat
+      failed_when: >
+        log_n6b_stat.stat.checksum !=
+        'adbd1ce2bbdafcde44aa7b794d8485c2cdfe84b10c6a9d7e761351b749e95965'
 
     - name: Deploy the case brief
       ansible.builtin.copy:
@@ -107,25 +146,32 @@
         group: user
         mode: '0644'
         content: |
-          ORION RETAIL LTD - INCIDENT REVIEW
-          ==================================
+          ORION RETAIL LTD - INCIDENT REVIEWS
+          ===================================
 
-          The internal web admin panel was accessed without authorization.
-          A capture was running on the internal interface of the server
-          srv-web01 (172.20.30.10) at the time.
+          This workstation holds the evidence for two exercises.
 
-          Evidence:  ~/case/orion-internal.pcapng   (read-only)
-          Tools:     Wireshark, tshark, unzip
+          N6a - Traffic Analysis CTF1
+            The internal web admin panel was accessed without authorization.
+            Evidence:  ~/case/orion-internal.pcapng
 
-          The LAN in the capture, 172.20.30.0/24, no longer exists. This is
-          an offline review - there is nothing to connect to.
+          N6b - Traffic Analysis CTF2 (IDS evasion)
+            After the first breach a signature IDS was deployed; a second
+            intrusion succeeded anyway.
+            Evidence:  ~/case/orion-ids.pcapng   and   ~/case/fast.log
+
+          All evidence files are read-only.
+          Tools: Wireshark, tshark, unzip.
+
+          The LAN in the captures, 172.20.30.0/24, no longer exists. These
+          are offline reviews - there is nothing to connect to.
 
           Answers in the training portal are case-sensitive.
 
     - name: Add a case-folder shortcut to the trainee shell
       ansible.builtin.blockinfile:
         path: /home/user/.bashrc
-        marker: "# {mark} KYPO N6A CASE SHORTCUT"
+        marker: "# {mark} KYPO N6 CASE SHORTCUT"
         block: |
           alias case='cd /home/user/case'
         create: false
@@ -197,8 +243,8 @@
         state: stopped
       failed_when: false
 
-    # N6a is offline forensics - targetvm only routes network-3 and
-    # needs nothing beyond the base image. Add N6b tasks below.
+    # Both N6a and N6b are offline forensics - targetvm only routes
+    # network-3 and needs nothing beyond the base image.
 
     - name: Enable OpenSSH server
       ansible.builtin.systemd:
