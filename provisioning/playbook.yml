@@ -19,7 +19,7 @@
       slf_destination_port: '{% if hostvars["man"] is defined -%} 514 {%- else -%} 515 {%- endif %}'
     - role: user-access
       user_access_username: user
-      user_access_password: 'btcmp18@admin'
+      user_access_password: 'password123'
       user_access_sudo: true
 
   tasks:
@@ -203,7 +203,7 @@
   roles:
     - role: user-access
       user_access_username: user
-      user_access_password: 'btcmp18@admin'
+      user_access_password: 'password123'
       user_access_sudo: true
 
   tasks:
