@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 #  Module 6 - Traffic Analysis (combined)
 #  Covers N6a (Traffic Analysis CTF1) and N6b (Traffic Analysis CTF2)
-#  Topology: cr18-N6-v1  (pentester + targetvm)
+#  Topology: cr18-N6-v1  (pentester + router)
 #
 #  Required files next to this playbook:
 #    files/orion-internal.pcapng   (N6a capture)
@@ -225,36 +225,8 @@
         state: started
 
 
-- name: init machine targetvm
-  hosts:
-    - targetvm
-  become: true
-
-  roles:
-    - role: user-access
-      user_access_username: user
-      user_access_password: 'password123'
-      user_access_sudo: true
-
-  tasks:
-    - name: Disable unattended-upgrades during provisioning
-      ansible.builtin.systemd:
-        name: unattended-upgrades
-        state: stopped
-      failed_when: false
-
-    # Both N6a and N6b are offline forensics - targetvm only routes
-    # network-3 and needs nothing beyond the base image.
-
-    - name: Enable OpenSSH server
-      ansible.builtin.systemd:
-        name: ssh
-        enabled: true
-        state: started
-
-
 - name: Disable unattended apt upgrades
-  hosts: pentester,targetvm,man
+  hosts: pentester,man
   become: true
   tasks:
     - name: Disable unattended upgrades in apt periodic config
