@@ -30,14 +30,16 @@ OUT             = "orion-internal.pcap"
 ZIP_PATH        = "payload/site-backup.zip"
 CERT_PATH       = "server_cert.der"
 
-GW_IP,  GW_MAC  = "172.20.30.1",  "00:0c:29:11:00:01"
-SRV_IP, SRV_MAC = "172.20.30.10", "00:0c:29:5a:10:10"   # capture point
-WS1_IP, WS1_MAC = "172.20.30.25", "00:0c:29:7b:20:25"   # admin workstation
-WS2_IP, WS2_MAC = "172.20.30.31", "00:0c:29:7b:20:31"   # sales workstation
-WS3_IP, WS3_MAC = "172.20.30.13", "00:0c:29:7b:20:13"
-WS4_IP, WS4_MAC = "172.20.30.77", "00:0c:29:7b:20:77"
-WS5_IP, WS5_MAC = "172.20.30.91", "00:0c:29:7b:20:91"
-ATK_IP, ATK_MAC = "172.20.30.66", "00:0c:29:aa:bb:66"   # the real attacker
+# MACs use real vendor OUIs and bear no relationship to the IP addresses,
+# so the addressing itself gives nothing away.
+GW_IP,  GW_MAC  = "172.20.30.1",  "00:1b:0d:5e:11:74"   # Cisco
+SRV_IP, SRV_MAC = "172.20.30.10", "00:14:22:7c:3a:19"   # Dell - capture point
+WS1_IP, WS1_MAC = "172.20.30.25", "18:66:da:41:9e:6b"   # admin workstation
+WS2_IP, WS2_MAC = "172.20.30.31", "18:66:da:0c:57:e8"   # sales workstation
+WS3_IP, WS3_MAC = "172.20.30.13", "3c:d9:2b:8f:15:c2"
+WS4_IP, WS4_MAC = "172.20.30.77", "3c:d9:2b:44:6a:9d"
+WS5_IP, WS5_MAC = "172.20.30.91", "18:66:da:b3:27:5f"
+ATK_IP, ATK_MAC = "172.20.30.66", "a0:36:9f:2e:83:51"   # Intel - the attacker
 EXF_IP          = "203.0.113.45"                       # RFC 5737 TEST-NET-3
 
 HTTP_USER, HTTP_PASS = "webadmin", "Or10n_W3b_2024!"
