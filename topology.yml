@@ -1,9 +1,10 @@
+
 name: cr18-N6-v1
 hosts:
   - name: pentester
     flavor: c2_r4_d20
     base_box:
-      image: ubuntu-noble-x86_64
+      image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
       mgmt_protocol: ssh
     hidden: false
