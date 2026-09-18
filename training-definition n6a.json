@@ -28,12 +28,12 @@
     "minimal_possible_solve_time" : 5,
     "answer" : "Ba3kup!Or10n#24",
     "answer_variable_name" : null,
-    "content" : "Open `~/case/orion-internal.pcapng` in Wireshark. tshark works too.\n\nThe attacker was positioned to read traffic between the admin workstation and the server. Two sets of credentials cross the wire in the clear here — one for the web admin panel, one for a service account used by a scheduled backup job.\n\n**Start here.** Apply this display filter to show only the protocols that carry credentials without encryption:\n\n    ftp || http.authorization\n\nThe FTP login is plain text — right-click a packet and choose **Follow -> TCP Stream** to read it. The admin panel uses HTTP Basic authentication, which only base64-encodes the credentials; Wireshark shows the decoded value in the packet detail, or in the `http.authbasic` field.\n\nNote what the service account is used for — you will need it in the final level.\n\nSubmit the **password of the service account** as your answer for this stage.",
-    "solution" : "* Two protocols in this capture carry credentials without encryption. Narrow to them:\n\n```\nftp || http.authorization\n```\n\n* **The service account.** The FTP control channel is entirely readable. Right-click any packet in the session and choose **Follow -> TCP Stream** to read the exchange in order, or extract the fields directly using tshark:\n\n```\ntshark -r ~/case/orion-internal.pcapng -Y ftp.request.command -T fields -e ftp.request.command -e ftp.request.arg\n```\n\nThe workstation logs in as `backupsvc` with password `Ba3kup!Or10n#24`, then retrieves `site-backup.zip`. That is the scheduled backup job, and the archive is what you will rebuild in the final level.\n\n* **The admin panel.** It runs on port 8080 with no TLS and uses HTTP Basic authentication, so the credentials are base64-encoded in the `Authorization` header. \n\nIn Wireshark, click one of the two GET /admin/ requests and expand Hypertext Transfer Protocol -> Authorization in the packet detail; Wireshark shows the decoded Credentials: webadmin:Or10n_W3b_2024! beneath the encoded value.\n\nOn the command line using tshark, the same decoded field is:\n\n```\ntshark -r ~/case/orion-internal.pcapng -Y 'http.authorization' -T fields -e http.authbasic\n```\n\nwhich prints webadmin:Or10n_W3b_2024! once per authenticated request. To decode the header by hand, take just the base64 token after the word Basic and pass it to base64 -d:\n\n`echo 'd2ViYWRtaW46T3IxMG5fVzNiXzIwMjQh' | base64 -d`\n\n* Both findings are the same class of failure: an administrative interface and a file transfer service, each carrying credentials across the network in a form anyone on-path can read.\n\n**Answer: `Ba3kup!Or10n#24`**",
+    "content" : "Open `~/case/orion-internal.pcapng` in Wireshark. tshark works too.\n\nThe attacker was positioned to read traffic between the admin workstation and the server. Two sets of credentials cross the wire in the clear here — one for the web admin panel, one for a service account used by a scheduled backup job.\n\n**Start here.** Apply this display filter to show only the protocols that carry credentials without encryption:\n\n    ftp || http.authorization\n\nThe FTP login is plain text. The admin panel uses HTTP Basic authentication, which only base64-encodes the credentials; Wireshark shows the decoded value in the packet detail, or in the `http.authbasic` field.\n\nNote what the service account is used for — you will need it in the final level.\n\nSubmit the **password of the service account** as your answer for this stage.",
+    "solution" : "* Two protocols in this capture carry credentials without encryption. Narrow to them:\n\n```\nftp || http.authorization\n```\n\n* **The service account.** The FTP control channel is entirely readable. Right-click any packet in the session and choose **Follow -> TCP Stream** to read the exchange in order, or extract the fields directly using tshark:\n\n```\ntshark -r ~/case/orion-internal.pcapng -Y ftp.request.command -T fields -e ftp.request.command -e ftp.request.arg\n```\n\nThe workstation logs in as `backupsvc` with password `Ba3kup!Or10n#24`, then retrieves `site-backup.zip`. That is the scheduled backup job, and the archive is what you will rebuild in the final level.\n\n* **The admin panel.** It runs on port 8080 with no TLS and uses HTTP Basic authentication, so the credentials are base64-encoded in the `Authorization` header. \n\nIn Wireshark, click one of the two GET /admin/ requests and expand Hypertext Transfer Protocol -> Authorization in the packet detail; Wireshark shows the decoded Credentials: webadmin:Or10n_W3b_2024! beneath the encoded value.\n\nOn the command line using tshark, the same decoded field is:\n\n```\ntshark -r ~/case/orion-internal.pcapng -Y 'http.authorization' -T fields -e http.authbasic\n```\n\nwhich prints webadmin:Or10n_W3b_2024! once per authenticated request. \n\n* Both findings are the same class of failure: an administrative interface and a file transfer service, each carrying credentials across the network in a form anyone on-path can read.\n\n**Answer: `Ba3kup!Or10n#24`**",
     "solution_penalized" : true,
     "hints" : [ {
       "title" : "That Is Not Encryption",
-      "content" : "The admin panel credentials are base64, not encrypted. Wireshark decodes them into `http.authbasic`, or decode the Authorization header yourself with `base64 -d`.",
+      "content" : "The admin panel credentials are base64, not encrypted. Wireshark decodes them into `http.authbasic` — right-click a packet and choose **Follow -> TCP Stream** to read it or decode the Authorization header yourself with `base64 -d`.\n\n",
       "hint_penalty" : 5,
       "order" : 0
     } ],
@@ -43,9 +43,9 @@
     "variant_answers" : false,
     "reference_solution" : [ ],
     "mitre_techniques" : [ {
-      "technique_key" : "TA0006.T1040"
-    }, {
       "technique_key" : "TA0006.T1557"
+    }, {
+      "technique_key" : "TA0006.T1040"
     } ],
     "expected_commands" : [ "wireshark", "tshark", "base64" ],
     "commands_required" : false
@@ -99,9 +99,9 @@
     "variant_answers" : false,
     "reference_solution" : [ ],
     "mitre_techniques" : [ {
-      "technique_key" : "TA0011.T1071"
-    }, {
       "technique_key" : "TA0010.T1041"
+    }, {
+      "technique_key" : "TA0011.T1071"
     } ],
     "expected_commands" : [ "wireshark", "tshark", "unzip" ],
     "commands_required" : false
