@@ -226,7 +226,7 @@
 
 
 - name: Disable unattended apt upgrades
-  hosts: vma
+  hosts: vma,man
   become: true
   tasks:
     - name: Disable unattended upgrades in apt periodic config
