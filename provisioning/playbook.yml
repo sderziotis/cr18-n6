@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────
 #  Module 6 - Traffic Analysis (combined)
-#  Covers N6a (Traffic Analysis CTF1) and N6b (Traffic Analysis CTF2)
+#  Covers N6a (Beginner Traffic Analysis) and N6b (Intermediate Traffic Analysis)
 #  Topology: cr18-N6-v1  (pentester + router)
 #
 #  Required files next to this playbook:
@@ -151,11 +151,11 @@
 
           This workstation holds the evidence for two exercises.
 
-          N6a - Traffic Analysis CTF1
+          N6a - Beginner Traffic Analysis
             The internal web admin panel was accessed without authorization.
             Evidence:  ~/case/orion-internal.pcapng
 
-          N6b - Traffic Analysis CTF2 (IDS evasion)
+          N6b - Intermediate Traffic Analysis (IDS evasion)
             After the first breach a signature IDS was deployed; a second
             intrusion succeeded anyway.
             Evidence:  ~/case/orion-ids.pcapng   and   ~/case/fast.log

@@ -2,7 +2,7 @@
   "title": "CR-18 / Module 6 / N6b — Intermediate Traffic Analysis",
   "description": "Analyse a packet capture alongside the IDS alert log it generated to determine how a second intruder bypassed signature-based detection. Recognise a decoy scan by the single MAC address behind its forged source IPs, locate the fragmented attack the IDS never alerted on, reassemble it, and decode an obfuscated reverse-shell payload. A short assessment then checks the key facts of the investigation.",
   "prerequisites": [
-    "Completion of Traffic Analysis CTF1 (N6a), or equivalent Wireshark/tshark experience",
+    "Completion of N6a (Beginner Traffic Analysis), or equivalent Wireshark/tshark experience",
     "Comfort with display filters, Follow TCP Stream, and IP fragment reassembly",
     "Awareness that an IDS alert is a signature match on a packet, not a conclusion"
   ],

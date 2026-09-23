@@ -6,8 +6,8 @@ A KYPO cyber range training module built around offline packet-capture analysis,
 
 Unlike the earlier modules in this course, Module 6 is not a live exploitation exercise — trainees are handed forensic evidence (packet captures, and in N6b an IDS alert log) from incidents that already happened, and must reconstruct what occurred purely through traffic analysis. There is no live target network to attack; both labs are explicitly framed as offline incident reviews.
 
-- **N6a — Traffic Analysis CTF1** investigates a suspected unauthorized access to an internal web admin panel using a single packet capture. Trainees recover credentials exposed by insecure protocols, assess an obsolete TLS configuration from its handshake, and reconstruct a file that was exfiltrated over the network.
-- **N6b — Traffic Analysis CTF2** picks up after the first incident, once a signature-based IDS has been deployed. Trainees analyze a second capture alongside the IDS's alert log to work out how an intrusion evaded detection — separating a decoy scan from the real attacker by MAC address, then locating and reassembling a fragmented, obfuscated payload the IDS never flagged. It closes with a short assessment on the key facts of the investigation.
+- **N6a — Beginner Traffic Analysis** investigates a suspected unauthorized access to an internal web admin panel using a single packet capture. Trainees recover credentials exposed by insecure protocols, assess an obsolete TLS configuration from its handshake, and reconstruct a file that was exfiltrated over the network.
+- **N6b — Intermediate Traffic Analysis** picks up after the first incident, once a signature-based IDS has been deployed. Trainees analyze a second capture alongside the IDS's alert log to work out how an intrusion evaded detection — separating a decoy scan from the real attacker by MAC address, then locating and reassembling a fragmented, obfuscated payload the IDS never flagged. It closes with a short assessment on the key facts of the investigation.
 
 Both labs run on the same sandbox and are intended to be completed in order, with N6b assuming familiarity with the tooling and techniques introduced in N6a.
 
@@ -40,7 +40,7 @@ Both labs run on the same sandbox and are intended to be completed in order, wit
 
 ## Scenario Structure
 
-**N6a — Traffic Analysis CTF1**
+**N6a — Beginner Traffic Analysis**
 
 | # | Title | Type |
 |---|-------|------|
@@ -53,7 +53,7 @@ Both labs run on the same sandbox and are intended to be completed in order, wit
 
 Estimated duration: ~45 minutes.
 
-**N6b — Traffic Analysis CTF2**
+**N6b — Intermediate Traffic Analysis**
 
 | # | Title | Type |
 |---|-------|------|
