@@ -21,7 +21,7 @@ Both labs run on the same sandbox and are intended to be completed in order, wit
 **N6b:**
 - Completion of N6a, or equivalent Wireshark/tshark experience
 - Comfort with display filters, following TCP streams, and IP fragment reassembly
-- Understanding that a source IP can be forged but the sending MAC address cannot
+- Awareness that an IDS alert is a signature match on a packet, not a conclusion
 
 ## Learning Outcomes
 
