@@ -48,13 +48,13 @@
         {
           "title": "That Is Not Encryption",
           "content": "The admin panel credentials are base64, not encrypted. Wireshark decodes them into `http.authbasic` — right-click a packet and choose **Follow -> TCP Stream** to read it or decode the Authorization header yourself with `base64 -d`.\n\n",
-          "hint_penalty": 8,
+          "hint_penalty": 5,
           "order": 0
         }
       ],
       "incorrect_answer_limit": 5,
       "attachments": [],
-      "max_score": 45,
+      "max_score": 30,
       "variant_answers": false,
       "reference_solution": [],
       "mitre_techniques": [
@@ -87,13 +87,13 @@
         {
           "title": "Client Offers, Server Decides",
           "content": "In a TLS handshake the client sends a list of cipher suites it supports (Client Hello, tls.handshake.type == 1); the server replies with the single one it chose (Server Hello, tls.handshake.type == 2). Only the server's choice describes the session — so look at the Server Hello, not the Client Hello, and read the Cipher Suite line inside it.",
-          "hint_penalty": 8,
+          "hint_penalty": 5,
           "order": 0
         }
       ],
       "incorrect_answer_limit": 5,
       "attachments": [],
-      "max_score": 45,
+      "max_score": 30,
       "variant_answers": false,
       "reference_solution": [],
       "mitre_techniques": [
@@ -122,13 +122,13 @@
         {
           "title": "You Already Have The Password",
           "content": "The archive password is one you recovered in an earlier level — somebody reused it. `unzip -P '<password>' site-backup.zip`.",
-          "hint_penalty": 15,
+          "hint_penalty": 10,
           "order": 0
         }
       ],
       "incorrect_answer_limit": 5,
       "attachments": [],
-      "max_score": 60,
+      "max_score": 40,
       "variant_answers": false,
       "reference_solution": [],
       "mitre_techniques": [
