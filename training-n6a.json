@@ -1,5 +1,5 @@
 {
-  "title": "CR-18 / Module 6 / N6a — Traffic Analysis CTF1",
+  "title": "CR-18 / Module 6 / N6a — Beginner Traffic Analysis",
   "description": "Investigate a suspected unauthorized access to a small company's internal web admin panel using nothing but a packet capture taken on the server's internal interface. Recover cleartext credentials from a file transfer service and an unprotected admin panel, assess an obsolete TLS configuration from its handshake alone, and reconstruct the exfiltrated archive from the packets that carried it. Concludes by correlating each finding to the misconfiguration that allowed it.",
   "prerequisites": [
     "Comfort using a Linux shell",
