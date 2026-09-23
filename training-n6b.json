@@ -158,7 +158,7 @@
         },
         {
           "question_type": "MCQ",
-          "text": "In one word, what technique split the malicious payload so that no single packet matched an IDS signature?",
+          "text": "Which technique split the malicious payload so that no single packet matched an IDS signature?",
           "points": 10,
           "penalty": 0,
           "order": 3,
@@ -170,7 +170,7 @@
               "order": 0
             },
             {
-              "text": "fragmentation",
+              "text": "Fragmentation",
               "correct": true,
               "order": 1
             },
