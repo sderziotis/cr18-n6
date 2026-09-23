@@ -1,6 +1,6 @@
 name: cr-18-m6-traffic-analysis
 hosts:
-  - name: pentester
+  - name: vma
     flavor: c2_r4_d20
     base_box:
       image: xubuntu-noble-x86_64
@@ -24,7 +24,7 @@ wan:
   name: network-1
   cidr: 10.10.10.0/24
 net_mappings:
-  - host: pentester
+  - host: vma
     network: network-3
     ip: 192.168.10.10
 router_mappings:

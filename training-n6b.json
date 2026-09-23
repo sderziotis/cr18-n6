@@ -29,7 +29,7 @@
       "estimated_duration": 0,
       "minimal_possible_solve_time": null,
       "passkey": "start",
-      "cloud_content": "In the topology panel on the right, right-click **pentester** and select **Open GUI In New Window**. Log in with username **user** and password **Password123**.\n\nBoth evidence files are in `~/case/` (the `case` alias takes you there). Submit the passkey **start** to unlock the next level.",
+      "cloud_content": "In the topology panel on the right, right-click **vma** and select **Open GUI In New Window**. Log in with username **user** and password **Password123**.\n\nBoth evidence files are in `~/case/` (the `case` alias takes you there). Submit the passkey **start** to unlock the next level.",
       "local_content": "This sandbox has not been validated for local-only deployment."
     },
     {

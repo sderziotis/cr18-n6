@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 #  Module 6 - Traffic Analysis (combined)
 #  Covers N6a (Beginner Traffic Analysis) and N6b (Intermediate Traffic Analysis)
-#  Topology: cr18-N6-v1  (pentester + router)
+#  Topology: cr18-N6-v1  (vma + router)
 #
 #  Required files next to this playbook:
 #    files/orion-internal.pcapng   (N6a capture)
@@ -9,9 +9,9 @@
 #    files/fast.log                (N6b IDS alert log)
 # ─────────────────────────────────────────────
 
-- name: init machine pentester
+- name: init machine vma
   hosts:
-    - pentester
+    - vma
   become: true
 
   roles:
@@ -226,7 +226,7 @@
 
 
 - name: Disable unattended apt upgrades
-  hosts: pentester,man
+  hosts: vma
   become: true
   tasks:
     - name: Disable unattended upgrades in apt periodic config

@@ -69,8 +69,8 @@ Estimated duration: ~42 minutes.
 
 Both labs share a single, minimal sandbox:
 
-- **Analysis workstation** — the trainee's only machine, pre-equipped with packet analysis tooling. Trainees work entirely against provided evidence files rather than a live network.
-- **Router** — provides the sandbox's network connectivity.
+- **Analysis workstation** (`vma`) — the trainee's only machine, pre-equipped with packet analysis tooling. Trainees work entirely against provided evidence files rather than a live network.
+- **Router** (`router`) — provides the sandbox's network connectivity.
 
 The network the evidence was captured from no longer exists in the sandbox — there is nothing live to scan or connect to. Both labs are self-contained forensic exercises rather than network attack exercises.
 
