@@ -1,4 +1,4 @@
-name: cr18-N6-v1
+name: cr-18-m6-traffic-analysis
 hosts:
   - name: pentester
     flavor: c2_r4_d20
