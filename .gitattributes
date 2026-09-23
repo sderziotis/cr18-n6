@@ -1,0 +1,9 @@
+# The captures are evidence, not text. Never let a checkout rewrite a byte of
+# them - the playbook gates deployment on their sha256, and fast.log must stay
+# LF or that gate fails on a Linux target after a Windows commit.
+*.pcapng binary
+*.log    text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.md     text eol=lf
+*.py     text eol=lf
