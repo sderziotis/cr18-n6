@@ -47,25 +47,25 @@
         {
           "title": "Look For The Silence",
           "content": "The log has no entry for port 8080. Filter http.request.method==POST && tcp.port==8080. The one POST you find was reassembled from IP fragments (ip.flags.mf==1 || ip.frag_offset>0) — that fragmentation is why no signature fired.",
-          "hint_penalty": 13,
+          "hint_penalty": 10,
           "order": 1
         },
         {
           "title": "Decode What It Carried",
           "content": "The POST body has a `cmd` field in base64. Extract it (`urlencoded-form.value`) and pipe it to `base64 -d`. The flag is inside the decoded command.",
-          "hint_penalty": 20,
+          "hint_penalty": 15,
           "order": 2
         },
         {
           "title": "The Alerts Are Bait",
           "content": "The IDS names five scanning IPs, but add Source MAC as a column: they all share one MAC. Four are forged nmap decoys. Compare with the ARP requests at the start of the capture to see which IPs really own which MAC.",
-          "hint_penalty": 7,
+          "hint_penalty": 5,
           "order": 0
         }
       ],
       "incorrect_answer_limit": 5,
       "attachments": [],
-      "max_score": 80,
+      "max_score": 60,
       "variant_answers": false,
       "reference_solution": [],
       "mitre_techniques": [
@@ -99,7 +99,7 @@
         {
           "question_type": "FFQ",
           "text": "What is the MAC address of the real attacker — the single hardware address shared by all the decoy source IPs? (lower case, colon-separated)",
-          "points": 10,
+          "points": 8,
           "penalty": 0,
           "order": 0,
           "answer_required": true,
@@ -129,7 +129,7 @@
         {
           "question_type": "FFQ",
           "text": "What is the IP address of the real attacker (the one of the five scanning IPs that genuinely owns that MAC)?",
-          "points": 10,
+          "points": 8,
           "penalty": 0,
           "order": 1,
           "answer_required": true,
@@ -144,7 +144,7 @@
         {
           "question_type": "FFQ",
           "text": "On which TCP port did the real attack take place — the service the IDS never alerted on?",
-          "points": 10,
+          "points": 8,
           "penalty": 0,
           "order": 2,
           "answer_required": true,
@@ -159,7 +159,7 @@
         {
           "question_type": "MCQ",
           "text": "Which technique split the malicious payload so that no single packet matched an IDS signature?",
-          "points": 10,
+          "points": 8,
           "penalty": 0,
           "order": 3,
           "answer_required": true,
@@ -189,7 +189,7 @@
         {
           "question_type": "FFQ",
           "text": "What IP address would the recovered reverse shell have connected back to?",
-          "points": 10,
+          "points": 8,
           "penalty": 0,
           "order": 4,
           "answer_required": true,
