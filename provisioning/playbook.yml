@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────
 #  Module 6 - Traffic Analysis (combined)
-#  Covers N6a (Traffic Analysis CTF1) and N6b (Traffic Analysis CTF2)
-#  Topology: cr18-N6-v1  (pentester + router)
+#  Covers N6a (Beginner Traffic Analysis) and N6b (Intermediate Traffic Analysis)
+#  Topology: cr18-N6-v1  (vma + router)
 #
 #  Required files next to this playbook:
 #    files/orion-internal.pcapng   (N6a capture)
@@ -9,9 +9,9 @@
 #    files/fast.log                (N6b IDS alert log)
 # ─────────────────────────────────────────────
 
-- name: init machine pentester
+- name: init machine vma
   hosts:
-    - pentester
+    - vma
   become: true
 
   roles:
@@ -19,7 +19,7 @@
       slf_destination_port: '{% if hostvars["man"] is defined -%} 514 {%- else -%} 515 {%- endif %}'
     - role: user-access
       user_access_username: user
-      user_access_password: 'password123'
+      user_access_password: 'Password123'
       user_access_sudo: true
 
   tasks:
@@ -120,7 +120,7 @@
       register: pcap_n6b_stat
       failed_when: >
         pcap_n6b_stat.stat.checksum !=
-        '1aaf3da37742bd929a702fa6b2b6440dd48bd4ed7fff19a51bf23925dfc88a35'
+        'b32472dbdb4ba3941351110451923257d915b2c8e0c8d1765d2045916bbf5f2a'
 
     - name: Deploy the IDS alert log (N6b)
       ansible.builtin.copy:
@@ -137,7 +137,7 @@
       register: log_n6b_stat
       failed_when: >
         log_n6b_stat.stat.checksum !=
-        'adbd1ce2bbdafcde44aa7b794d8485c2cdfe84b10c6a9d7e761351b749e95965'
+        'a333e9f2eba692a1d8d5d95ae362ef841b87f7e0b8087cfcf1a1add9f20e1a12'
 
     - name: Deploy the case brief
       ansible.builtin.copy:
@@ -151,11 +151,11 @@
 
           This workstation holds the evidence for two exercises.
 
-          N6a - Traffic Analysis CTF1
+          N6a - Beginner Traffic Analysis
             The internal web admin panel was accessed without authorization.
             Evidence:  ~/case/orion-internal.pcapng
 
-          N6b - Traffic Analysis CTF2 (IDS evasion)
+          N6b - Intermediate Traffic Analysis (IDS evasion)
             After the first breach a signature IDS was deployed; a second
             intrusion succeeded anyway.
             Evidence:  ~/case/orion-ids.pcapng   and   ~/case/fast.log
@@ -226,7 +226,7 @@
 
 
 - name: Disable unattended apt upgrades
-  hosts: pentester,man
+  hosts: vma,man
   become: true
   tasks:
     - name: Disable unattended upgrades in apt periodic config

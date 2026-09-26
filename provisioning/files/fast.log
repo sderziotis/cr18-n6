@@ -1,16 +1,60 @@
-09/05/2026-09:00:47.512334  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.13:52144 -> 172.20.30.10:3306
-09/05/2026-09:00:47.663201  [**] [1:2002910:6] ET SCAN Potential VNC Scan 5900-5920 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:41288 -> 172.20.30.10:3389
-09/05/2026-09:00:47.881190  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:39912 -> 172.20.30.10:110
-09/05/2026-09:00:48.104553  [**] [1:2010935:3] ET SCAN Suspicious inbound to MSSQL port 1433 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.91:55010 -> 172.20.30.10:139
-09/05/2026-09:00:48.339712  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:52190 -> 172.20.30.10:445
-09/05/2026-09:00:48.556031  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:44001 -> 172.20.30.10:23
-09/05/2026-09:00:48.770884  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:41320 -> 172.20.30.10:21
-09/05/2026-09:00:48.998210  [**] [1:2002910:6] ET SCAN Potential VNC Scan [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:39980 -> 172.20.30.10:143
-09/05/2026-09:00:49.213377  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.91:55090 -> 172.20.30.10:3306
-09/05/2026-09:00:49.441002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:52260 -> 172.20.30.10:25
-09/05/2026-09:00:49.660518  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:44060 -> 172.20.30.10:445
-09/05/2026-09:00:49.883774  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:41390 -> 172.20.30.10:139
-09/05/2026-09:00:50.101229  [**] [1:2010935:3] ET SCAN Suspicious inbound to MSSQL port 1433 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.77:40044 -> 172.20.30.10:3306
-09/05/2026-09:00:50.322665  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:55160 -> 172.20.30.10:110
-09/05/2026-09:00:50.544120  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:52330 -> 172.20.30.10:143
-09/05/2026-09:00:50.765009  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:44118 -> 172.20.30.10:21
+09/25/2026-10:20:17.119998  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:63928 -> 172.20.30.10:143
+09/25/2026-10:20:17.124999  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:64335 -> 172.20.30.10:143
+09/25/2026-10:20:17.129999  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:37581 -> 172.20.30.10:143
+09/25/2026-10:20:17.134999  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:52328 -> 172.20.30.10:143
+09/25/2026-10:20:17.139999  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:46348 -> 172.20.30.10:143
+09/25/2026-10:20:17.174999  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.13:58033 -> 172.20.30.10:3306
+09/25/2026-10:20:17.179999  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.44:59522 -> 172.20.30.10:3306
+09/25/2026-10:20:17.184999  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.77:50532 -> 172.20.30.10:3306
+09/25/2026-10:20:17.189999  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.91:45104 -> 172.20.30.10:3306
+09/25/2026-10:20:17.194999  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 172.20.30.66:42156 -> 172.20.30.10:3306
+09/25/2026-10:20:17.230000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:59182 -> 172.20.30.10:443
+09/25/2026-10:20:17.235000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:64369 -> 172.20.30.10:443
+09/25/2026-10:20:17.240000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:57848 -> 172.20.30.10:443
+09/25/2026-10:20:17.245000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:58238 -> 172.20.30.10:443
+09/25/2026-10:20:17.250000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:43352 -> 172.20.30.10:443
+09/25/2026-10:20:17.287000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:56454 -> 172.20.30.10:22
+09/25/2026-10:20:17.292000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:46278 -> 172.20.30.10:22
+09/25/2026-10:20:17.297000  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:61437 -> 172.20.30.10:22
+09/25/2026-10:20:17.302001  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:46336 -> 172.20.30.10:22
+09/25/2026-10:20:17.307001  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:63121 -> 172.20.30.10:22
+09/25/2026-10:20:17.344001  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:51289 -> 172.20.30.10:110
+09/25/2026-10:20:17.349001  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:55725 -> 172.20.30.10:110
+09/25/2026-10:20:17.354001  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:64724 -> 172.20.30.10:110
+09/25/2026-10:20:17.359001  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:49591 -> 172.20.30.10:110
+09/25/2026-10:20:17.364001  [**] [1:2001219:20] ET SCAN Rapid POP3 Connections - Possible Brute Force [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:43343 -> 172.20.30.10:110
+09/25/2026-10:20:17.399001  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:52911 -> 172.20.30.10:139
+09/25/2026-10:20:17.404001  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:51294 -> 172.20.30.10:139
+09/25/2026-10:20:17.409002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:48156 -> 172.20.30.10:139
+09/25/2026-10:20:17.414002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:62320 -> 172.20.30.10:139
+09/25/2026-10:20:17.419002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:42016 -> 172.20.30.10:139
+09/25/2026-10:20:17.454002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:40310 -> 172.20.30.10:3389
+09/25/2026-10:20:17.459002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:51427 -> 172.20.30.10:3389
+09/25/2026-10:20:17.464002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:48231 -> 172.20.30.10:3389
+09/25/2026-10:20:17.469002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:37718 -> 172.20.30.10:3389
+09/25/2026-10:20:17.474002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:45170 -> 172.20.30.10:3389
+09/25/2026-10:20:17.509002  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:51828 -> 172.20.30.10:23
+09/25/2026-10:20:17.514003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:60625 -> 172.20.30.10:23
+09/25/2026-10:20:17.519003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:42926 -> 172.20.30.10:23
+09/25/2026-10:20:17.524003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:49575 -> 172.20.30.10:23
+09/25/2026-10:20:17.529003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:58081 -> 172.20.30.10:23
+09/25/2026-10:20:17.564003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:40851 -> 172.20.30.10:445
+09/25/2026-10:20:17.569003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:39499 -> 172.20.30.10:445
+09/25/2026-10:20:17.574003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:60705 -> 172.20.30.10:445
+09/25/2026-10:20:17.579003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:54132 -> 172.20.30.10:445
+09/25/2026-10:20:17.584003  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:53925 -> 172.20.30.10:445
+09/25/2026-10:20:17.619004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:37672 -> 172.20.30.10:80
+09/25/2026-10:20:17.624004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:43510 -> 172.20.30.10:80
+09/25/2026-10:20:17.629004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:47922 -> 172.20.30.10:80
+09/25/2026-10:20:17.634004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:39084 -> 172.20.30.10:80
+09/25/2026-10:20:17.639004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:51096 -> 172.20.30.10:80
+09/25/2026-10:20:17.676004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:61761 -> 172.20.30.10:25
+09/25/2026-10:20:17.681004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:35550 -> 172.20.30.10:25
+09/25/2026-10:20:17.686004  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:37544 -> 172.20.30.10:25
+09/25/2026-10:20:17.691005  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:45848 -> 172.20.30.10:25
+09/25/2026-10:20:17.696005  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:36548 -> 172.20.30.10:25
+09/25/2026-10:20:17.788005  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.13:60968 -> 172.20.30.10:21
+09/25/2026-10:20:17.793005  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.44:44242 -> 172.20.30.10:21
+09/25/2026-10:20:17.798006  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.77:61442 -> 172.20.30.10:21
+09/25/2026-10:20:17.803006  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.91:61959 -> 172.20.30.10:21
+09/25/2026-10:20:17.808006  [**] [1:2009582:3] ET SCAN NMAP -sS window 1024 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 172.20.30.66:50513 -> 172.20.30.10:21

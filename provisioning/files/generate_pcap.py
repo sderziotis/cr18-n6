@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-N6a - Traffic Analysis CTF1  :  capture generator
+N6a - Beginner Traffic Analysis  :  capture generator
 Orion Retail Ltd / KYPO-CRCZP training node
 
-Produces a deterministic PCAP containing every artefact the four training
+Produces a deterministic PCAP containing every artefact the three graded
 levels depend on.  Re-run after editing the CONFIG block to change flags,
 credentials or addressing; nothing else in the file needs touching.
 
